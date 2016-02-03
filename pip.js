@@ -27,12 +27,15 @@
 				location: "default",
 				src: null,
 				size: null, // {height: px, width px}
-				ratio: 0.10
+				ratio: 0.30,
+				opacity: 0.5
 			};
 
 		// The actual plugin constructor
 		function Plugin ( element, options ) {
 				this.element = element;
+				this.$element = $(element);
+				this.$frame = null;
 				// jQuery has an extend method which merges the contents of two or
 				// more objects, storing the result in the first object. The first object
 				// is generally empty as we don't want to alter the default options for
@@ -40,6 +43,11 @@
 				this.settings = $.extend( {}, defaults, options );
 				this._defaults = defaults;
 				this._name = pluginName;
+				this._metters = {};
+				this._position = {
+					left: 0,
+					top: 0
+				};
 				this.init();
 		}
 
@@ -54,22 +62,75 @@
 						// call them like the example bellow
 
 						//tamanho de window
-
 						//calcula tamnho de pip, usando ratio por padrao
+						//calcular posicao default 
+						this.updateMetters();
 
 						//assinar eventos de mudança de window
+						this.bindEvents();
 
-						//calcular posicao default (pensar em propriedade para localizacao)
+						this.attachPip();
 
 						//usar propiedades de enfeite e efeitos - talvez usar classe css
-
 						//atualiza? (update / redraw) 
-
-						this.yourOtherFunction("jQuery Boilerplate");
 				},
-				yourOtherFunction: function (text) {
-						// some logic
-						$(this.element).text(text);
+				attachPip: function() {
+					var _this = this,
+						newFrame = $('<iframe id= "pipFrame"></iframe>');
+
+					newFrame.attr('src', _this._defaults.src);
+					newFrame.attr('style', 'left:' + _this._position.left + 'px;top:' + _this._position.top + 'px;position:fixed;height:' + _this._defaults.size.height + 'px;width:' + _this._defaults.size.width + 'px;opacity:' + _this._defaults.opacity);
+
+					_this.$frame = _this.$element.append(newFrame);
+				}, 
+				updatePosition: function() {
+					//TODO: pensar em propriedade para localizacao
+					var _this = this;
+
+					if (_this._defaults.location === "default") {
+						_this._position.left = _this._metters.innerWidth - _this._defaults.size.width - 10;
+						_this._position.top = _this._metters.innerHeight - _this._defaults.size.height - 10;
+					}
+
+					console.log("updatePosition");
+					console.dir(_this._position);
+
+					_this.$frame.animate({
+						top: _this._position.top,
+						left: _this._position.left
+					});
+				},
+				metterPip: function() {
+					var _this = this;
+
+					if (!_this._defaults.size) {
+						_this._defaults.size = {};
+						_this._defaults.size.height = _this._metters.innerHeight * _this._defaults.ratio;
+						_this._defaults.size.width = _this._metters.innerWidth * _this._defaults.ratio;
+					}
+
+					console.log("metterPip");
+					console.dir(_this._defaults.size);
+				},
+				updateMetters: function() {
+					var _this = this;
+
+					_this._metters.outerHeight = window.outerHeight;
+					_this._metters.outerWidth = window.outerWidth;
+					_this._metters.innerHeight = window.innerHeight;
+					_this._metters.innerWidth = window.innerWidth;
+					_this._metters.screen = window.screen;
+
+					console.dir(_this._metters);					
+
+					_this.metterPip();
+					_this.updatePosition();
+				},
+				bindEvents: function() {
+					var _this = this;
+					$(window).on('resize', function() {
+						_this.updateMetters();
+					});
 				}
 		});
 
