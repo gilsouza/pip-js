@@ -25,7 +25,7 @@
 		var pluginName = "pip",
 			defaults = {
 				location: "default",
-				src: null,
+				src: "http://10.4.250.43:3000/vm",
 				size: null, // {height: px, width px}
 				ratio: 0.30,
 				opacity: 0.5
@@ -81,7 +81,8 @@
 					newFrame.attr('src', _this._defaults.src);
 					newFrame.attr('style', 'left:' + _this._position.left + 'px;top:' + _this._position.top + 'px;position:fixed;height:' + _this._defaults.size.height + 'px;width:' + _this._defaults.size.width + 'px;opacity:' + _this._defaults.opacity);
 
-					_this.$frame = _this.$element.append(newFrame);
+ 					_this.$element.append(newFrame);
+					_this.$frame = newFrame;
 				}, 
 				updatePosition: function() {
 					//TODO: pensar em propriedade para localizacao
@@ -94,20 +95,26 @@
 
 					console.log("updatePosition");
 					console.dir(_this._position);
+					console.dir(_this.$frame);
 
-					_this.$frame.animate({
-						top: _this._position.top,
-						left: _this._position.left
-					});
+					if (_this.$frame) {
+						_this.$frame.stop().animate({
+							top: _this._position.top,
+							left: _this._position.left,
+							width: _this._defaults.size.width,
+							height: _this._defaults.size.height,
+						});
+					}
 				},
 				metterPip: function() {
 					var _this = this;
 
 					if (!_this._defaults.size) {
 						_this._defaults.size = {};
-						_this._defaults.size.height = _this._metters.innerHeight * _this._defaults.ratio;
-						_this._defaults.size.width = _this._metters.innerWidth * _this._defaults.ratio;
 					}
+
+					_this._defaults.size.height = _this._metters.innerHeight * _this._defaults.ratio;
+					_this._defaults.size.width = _this._metters.innerWidth * _this._defaults.ratio;
 
 					console.log("metterPip");
 					console.dir(_this._defaults.size);
